@@ -1,0 +1,20 @@
+#!/bin/sh
+
+DATADIR=/daq/bispectral_analysis/data/
+#OUTDIR=/daq/bispectral_analysis/data/processed/
+
+ for datafile in ${DATADIR}/processed/bispectral_data--L_350kHz-R_340kHz-0.6V--2.5MHz-ch0*.fft; do
+   echo "Processing $datafile..."
+   #sudo /usr/src/Core-FFT/core-fft.py -n 4 --ngdef -F 2500000 -N 1024 ${datafile} ${DATADIR}/processed/bispectral_data--L_350kHz-R_340kHz-0.6V--2.5MHz
+
+   gray -d ${datafile}.ngdef ${datafile}
+   ps2pdf gray.ps
+   mv gray.pdf $datafile.pdf
+   rm gray.ps
+#   rm graydata
+#   rm ngray.def
+   # get the base part of the filename, strip off all directories
+   # datafile=`basename $datafile`
+ done
+
+

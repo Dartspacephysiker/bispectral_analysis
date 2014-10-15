@@ -1,0 +1,7 @@
+#No temp saves
+*~
+
+#No object files or data files
+*.o
+*.data
+
