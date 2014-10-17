@@ -4,4 +4,6 @@
 #No object files or data files
 *.o
 *.data
-
+*.png
+*.pdf
+!bispectrum_data_340_350_kHz_waves_at_2.5MHz--n_seg256.idl.data
