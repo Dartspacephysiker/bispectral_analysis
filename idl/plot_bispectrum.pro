@@ -25,14 +25,29 @@
   ;     Change History::
   ;        Written, 16 Oct 2014 by Hammertime
   ;-
-PRO Plot_Bispectrum,DO_CONTOUR=do_cont,bicoh_scaled=bicoh_scaled,NO_NEG=no_neg,POW_SPEC=pow_spec
+  ;TOMORROW:
+  ;HANNING WINDOW
+  ;32768 SEG SIZE?
+  ;OTHER REGIONS OF INTEREST
+  
+PRO Plot_Bispectrum,DO_CONTOUR=do_cont,bicoh_scaled=bicoh_scaled,num_seg=num_seg,NO_NEG=no_neg,POW_SPEC=pow_spec,xrange=xrange,yrange=yrange
+  
+  IF NOT KEYWORD_SET(num_seg) THEN BEGIN & $
+    num_seg = 16384 & $
+    PRINT,"No number of segments specified! Doing a conservative " + STRCOMPRESS(string(num_seg),/remove_all) + "..." & $
+  ENDIF
   
   ;Get the data back online
   data_dir="/daq/bispectral_analysis/data/idl/"
-  fname="bispectrum_data_340_350_kHz_waves_at_2.5MHz--n_seg256.idl.data"
+  fname="bispectrum_data_340_350_kHz_waves_at_2.5MHz--n_seg" + STRCOMPRESS(string(num_seg),/remove_all) + ".idl.data"
   infile=data_dir+fname
 
   print,"Opening " + infile + " for action..."
+  IF NOT FILE_TEST(infile) THEN BEGIN & $
+    PRINT,"Plot_Bispectrum could not open " + infile + "!" & $
+    PRINT,"Exiting..." & $
+    RETURN & $
+  ENDIF & $
   RESTORE,infile
 
 ;  IF bicoh_0_in[0,0] NE !NULL THEN BEGIN & $
@@ -60,10 +75,56 @@ PRO Plot_Bispectrum,DO_CONTOUR=do_cont,bicoh_scaled=bicoh_scaled,NO_NEG=no_neg,P
 
 ; Set up variables for the plot. Normally, these values would be
 ; passed into the program as positional and keyword parameters.
-  x = bicoh_f/1000.0
-  y = x
-  xrange = [Min(x), Max(x)]
-  yrange = xrange
+  IF ~KEYWORD_SET(xrange) AND ~KEYWORD_SET(yrange) THEN BEGIN & $
+    x = bicoh_f/1000.0 & $
+    y = x & $
+    xrange = [Min(x), Max(x)] & $
+    yrange = xrange & $
+    freqbins = [bicoh_f[0],bicoh_f[0],bicoh_f[-1],bicoh_f[-1]]
+  ENDIF ELSE BEGIN
+    IF KEYWORD_SET(xrange) AND ~KEYWORD_SET(yrange) THEN BEGIN
+ 
+      yrange = [ max(bicoh_f)/1000.0, min(bicoh_f)/1000.0 ]
+      
+      ;Get bins from bicoh_f
+      freqbins = bispectrum_get_freq_bins(bicoh_f,xrange[0],yrange[0],xrange[1],yrange[1])
+    
+      ;set up ranges  
+      x = bicoh_f[freqbins[0]:freqbins[2]]
+      xrange = [ bicoh_f(freqbins[0])/1000.0, bicoh_f(freqbins[2])/1000.0 ]
+    ENDIF ELSE BEGIN
+      IF ~KEYWORD_SET(xrange) AND KEYWORD_SET(yrange) THEN BEGIN
+        
+        ;set up x, because it isn't...
+        x = bicoh_f
+        xrange = [Min(x), Max(x)]
+        
+        ;Get bins from bicoh_f
+        freqbins = bispectrum_get_freq_bins(bicoh_f,xrange[0],yrange[0],xrange[1],yrange[1])
+
+        ;set up ranges
+        xrange = [ bicoh_f(freqbins[0])/1000.0, bicoh_f(freqbins[2])/1000.0 ]
+        yrange = [ bicoh_f(freqbins[1])/1000.0, bicoh_f(freqbins[3])/1000.0 ]
+        y = bicoh_f[freqbins[1]:freqbins[3]]
+        y = y/1000.0
+      ENDIF ELSE BEGIN
+        IF KEYWORD_SET(xrange) AND KEYWORD_SET(yrange) THEN BEGIN
+          ;Get bins from bicoh_f
+          freqbins = bispectrum_get_freq_bins(bicoh_f,xrange[0],yrange[0],xrange[1],yrange[1])
+
+          ;set up ranges
+          x = bicoh_f(freqbins[0]:freqbins[2])
+          x = x/1000.0
+          y = bicoh_f[freqbins[1]:freqbins[3]]  
+          y = y/1000.0
+          xrange = [ bicoh_f(freqbins[0])/1000.0, bicoh_f(freqbins[2])/1000.0 ]
+          yrange = [ bicoh_f(freqbins[1])/1000.0, bicoh_f(freqbins[3])/1000.0 ]
+        ENDIF
+      ENDELSE
+    ENDELSE
+  ENDELSE
+  
+  ;These are the same for everyone
   xbinsize = bicoh_f[1]-bicoh_f[0]
   ybinsize = xbinsize
 
@@ -89,22 +150,22 @@ PRO Plot_Bispectrum,DO_CONTOUR=do_cont,bicoh_scaled=bicoh_scaled,NO_NEG=no_neg,P
 
   ; Load the color table for the display. All zero values will be gray.
   cgLoadCT, 33
-  TVLCT, cgColor('gray', /Triple), 0
+  TVLCT, cgColor('white', /Triple), 0
   TVLCT, r, g, b, /Get
   palette = [ [r], [g], [b] ]
   
   ;handle position of plot before displaying
   IF KEYWORD_SET(pow_spec) THEN BEGIN & $
-      pos_bicoh=[0.1, 0.1, 0.45, 0.85] & pos_cb =[ 0.1, 0.9, 0.45, 0.925] & $
+      pos_bicoh=[0.1, 0.1, 0.45, 0.85] & pos_cb =[ 0.1, 0.9, 0.45, 0.925] & pos_powspec = [0.65, 0.1, 0.95, 0.90] & $
     ENDIF ELSE BEGIN & $
       pos_bicoh=[0.125, 0.125, 0.9, 0.8] & pos_cb=[0.125, 0.875, 0.9, 0.925] & $
     ENDELSE
   
   
   ; Display the density plot.
-  cgImage, scaledDensity, XRange=xrange, YRange=yrange, /Axes, Palette=palette, $
+  cgImage, scaledDensity[freqbins[0]:freqbins[2],freqbins[1]:freqbins[3]], XRange=xrange, YRange=yrange, $
     XTitle='Frequency (kHz)', YTitle='Frequency (kHz)', $
-    Position=pos_bicoh
+    /Axes, Palette=palette, Position=pos_bicoh
 
   IF KEYWORD_SET(do_cont) THEN BEGIN & $
     thick = (!D.Name EQ 'PS') ? 6 : 2 & $
@@ -124,8 +185,8 @@ PRO Plot_Bispectrum,DO_CONTOUR=do_cont,bicoh_scaled=bicoh_scaled,NO_NEG=no_neg,P
 ;    pj_scaled = BYTSCL(bicoh_pj,MAX=max(bicoh_pj),MIN=min(bicoh_pj),TOP=100.0) & $
 ;    pj_scaled = pj_scaled/100.0     
     pj_norm = bicoh_pj/TOTAL(bicoh_pj)
-    cgPlot, x, pj_norm, xtitle="Frequency (kHz)", ytitle="Normalized power", $
-            xrange=[0,max(x)], Position=[0.55, 0.1, 0.95, 0.90], /NoErase & $
+    cgPlot, x, pj_norm[freqbins[0]:freqbins[2]], xtitle="Frequency (kHz)", ytitle="Normalized power", $
+            xrange=[min(x),max(x)], Position=pos_powspec, /NoErase & $
   ENDIF
 
 END
