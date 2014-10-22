@@ -1,5 +1,5 @@
 FUNCTION BI_SPECTRUM, x, n_seg=n_seg, dt=dt, err=err, f=f, $
-                      pois=pois, img=img, Pj=Pj
+                      pois=pois, img=img, Pj=Pj, hwind=hwind
 
 ; ----------------------------------------------------------
 ;+
@@ -23,6 +23,7 @@ FUNCTION BI_SPECTRUM, x, n_seg=n_seg, dt=dt, err=err, f=f, $
 ;       n_seg - (int) number of points in each segment
 ;       pois  - (logical) correct for Poisson noise level?
 ;       img   - (logical) if true the return full 2d bicoherence
+;       hwind - Apply Hanning window to each FFT segment
 ;
 ; OUTPUTS:
 ;       b     - array listing bicoherence b(j) or b(j,k)
@@ -83,6 +84,7 @@ FUNCTION BI_SPECTRUM, x, n_seg=n_seg, dt=dt, err=err, f=f, $
 ;
 ;
 ; HISTORY:
+;       10/21/2014  - Spencer Hatch - Added Hanning window to FFT
 ;       09/02/2007  - v1.0 -  First working version
 ;-
 ; ----------------------------------------------------------
@@ -134,6 +136,13 @@ FUNCTION BI_SPECTRUM, x, n_seg=n_seg, dt=dt, err=err, f=f, $
 
 ; subtract mean (DC component)
   data = temporary(data) - transpose(rebin(meanx,m,n_seg,/sample))
+
+;Do a window, if that's what you're into (Spencer Hatch addition)
+  IF KEYWORD_SET(hwind) THEN BEGIN
+    PRINT, "Applying Hanning window to data"
+    hwindow=rebin(Hanning(n_seg),n_seg,m)
+    data = hwindow*data
+  ENDIF
 
 ; Calculate the Fourier transform of each segment (row)
 ; this gives DFT(f_j,t_i)

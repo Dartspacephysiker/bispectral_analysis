@@ -8,7 +8,10 @@
   ;   NO_NEG:       Don't allow negative bicoherence values
   ;   DO_CONT:      Add contours to bicoherence plot
   ;   POW_SPEC:     Plot power spectrum instead of bicoherence    
-  ;   
+  ;   xrange:       Specify a range of frequencies (in kHz!) for the x axis (e.g., xrange=[335,355])
+  ;   yrange:       Specify a range of frequencies (in kHz!) for the y axis
+  ;   fname:        Input filename; otherwise default is used
+  ;   data_dir:     Directory where 'fname' is located 
   ; :Categories:
   ;    Graphics
   ;
@@ -26,20 +29,25 @@
   ;        Written, 16 Oct 2014 by Hammertime
   ;-
   ;TOMORROW:
-  ;HANNING WINDOW
   ;32768 SEG SIZE?
   ;OTHER REGIONS OF INTEREST
+  ;What else was on Professor LaBelle's sheet?
   
-PRO Plot_Bispectrum,DO_CONTOUR=do_cont,bicoh_scaled=bicoh_scaled,num_seg=num_seg,NO_NEG=no_neg,POW_SPEC=pow_spec,xrange=xrange,yrange=yrange
+PRO Plot_Bispectrum,DO_CONTOUR=do_cont,bicoh_scaled=bicoh_scaled,num_seg=num_seg,NO_NEG=no_neg,POW_SPEC=pow_spec,$
+  xrange=xrange,yrange=yrange,fname=fname,data_dir=data_dir
+  
+  default_data_dir="/daq/bispectral_analysis/data/idl/"
+  default_file="bispectrum_data_340_350_kHz_waves_at_2.5MHz--n_seg8192--FABRICATED--10MHzrate.idl.data"
+  ;default_file="bispectrum_data_340_350_kHz_waves_at_2.5MHz--n_seg" + STRCOMPRESS(string(num_seg),/remove_all) + ".idl.data"
   
   IF NOT KEYWORD_SET(num_seg) THEN BEGIN & $
-    num_seg = 16384 & $
+    num_seg = 8192 & $
     PRINT,"No number of segments specified! Doing a conservative " + STRCOMPRESS(string(num_seg),/remove_all) + "..." & $
   ENDIF
   
   ;Get the data back online
-  data_dir="/daq/bispectral_analysis/data/idl/"
-  fname="bispectrum_data_340_350_kHz_waves_at_2.5MHz--n_seg" + STRCOMPRESS(string(num_seg),/remove_all) + ".idl.data"
+  IF NOT KEYWORD_SET(data_dir) then data_dir=default_data_dir
+  IF NOT KEYWORD_SET(fname) THEN fname=default_file
   infile=data_dir+fname
 
   print,"Opening " + infile + " for action..."
@@ -150,7 +158,8 @@ PRO Plot_Bispectrum,DO_CONTOUR=do_cont,bicoh_scaled=bicoh_scaled,num_seg=num_seg
 
   ; Load the color table for the display. All zero values will be gray.
   cgLoadCT, 33
-  TVLCT, cgColor('white', /Triple), 0
+  TVLCT, cgColor('gray', /Triple), 0
+  ;TVLCT, cgColor('gray', /Triple), 1
   TVLCT, r, g, b, /Get
   palette = [ [r], [g], [b] ]
   
@@ -165,7 +174,7 @@ PRO Plot_Bispectrum,DO_CONTOUR=do_cont,bicoh_scaled=bicoh_scaled,num_seg=num_seg
   ; Display the density plot.
   cgImage, scaledDensity[freqbins[0]:freqbins[2],freqbins[1]:freqbins[3]], XRange=xrange, YRange=yrange, $
     XTitle='Frequency (kHz)', YTitle='Frequency (kHz)', $
-    /Axes, Palette=palette, Position=pos_bicoh
+    /Axes, Position=pos_bicoh, Palette=palette
 
   IF KEYWORD_SET(do_cont) THEN BEGIN & $
     thick = (!D.Name EQ 'PS') ? 6 : 2 & $
