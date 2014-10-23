@@ -3,7 +3,7 @@
 ;   BISPECTRUM_GET_FREQ_BINS
 ;
 ; :PURPOSE:
-;   Returns a four-element array [xmin,xmax, ymin,ymax] of boundary values to be used by plot_bispectrum
+;   Returns a four-element array [xmin,ymin,xmax,ymax] of boundary values to be used by plot_bispectrum
 ;
 ; :EXAMPLE:
 ;   bispec_bounds = bispectrum_get_freq_bins(bicoh_f,xmin,ymin,xmax,ymax

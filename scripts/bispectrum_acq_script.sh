@@ -1,5 +1,13 @@
 #!/bin/bash
 
+#10/23/2014
+#We've got a brand new thing going--
+#CH0: 500kHz signal @ 0.6V (HP 3325A)
+#CH1:  10kHz signal @ 0.6V (HP 3324A)
+#We're today trying to see what we can learn about the stationarity of the 
+#phase relationship between the waveform outputted by each o-scope.
+#--->Attempting to digitize at 5MHz
+
 #10/09/2014
 #David's experimental setup
 #340 kHz on HP3325A @ 0.6V teed to o-scope and mixer
@@ -46,8 +54,13 @@ echo "Get ready to get bispectral..."
 if sudo comedi_config --read-buffer 65536 /dev/comedi0 && sudo comedi_test -s0 /dev/comedi0 
 then
     echo "Comedi_configged and tested. You're in the money."
-    #sudo /usr/src/acq_c/acq_c -r 0000 -n 4 -F 2500000 -d 0.5 -m /tmp/rtd/rtd_digitizer.data -o ${DATA_DIR}/bispectral_data--L_175kHz-R_170kHz-0.6V--2.5MHz.data
-    sudo /usr/src/acq_c/acq_c -r 0000 -n 4 -F 1000000 -d 0.5 -m /tmp/rtd/rtd_digitizer.data -o ${DATA_DIR}/bispectral_data--L_35kHz-R_34kHz-0.6V--1MHz.data
+
+    #Run from 10/22/2014, only two channels digitized
+    sudo /usr/src/acq_c/acq_c -r 00 -n 2 -F 5000000 -d 0.5 -m /tmp/rtd/rtd_digitizer.data -o ${DATA_DIR}/bispectral_data--L_500kHz-R_10kHz-0.6V--5MHz.data
+    
+    #Runs from earlier in the month which included a mixed signal
+    #sudo /usr/src/acq_c/acq_c -r 0000 -n 4 -F 2500000 -d 0.5 -m /tmp/rtd/rtd_digitizer.data -o ${DATA_DIR}/bispectral_data--L_175-R_170kHz-0.6V--5MHz.data
+    #sudo /usr/src/acq_c/acq_c -r 0000 -n 4 -F 1000000 -d 0.5 -m /tmp/rtd/rtd_digitizer.data -o ${DATA_DIR}/bispectral_data--L_35kHz-R_34kHz-0.6V--1MHz.data
     #sudo /usr/src/acq_c/acq_c -r 0000 -n 4 -F 100000 -d 0.5 -m /tmp/rtd/rtd_digitizer.data -o ${DATA_DIR}/bispectral_data--L_3.5kHz-R_3.4kHz-0.6V--kHz.data
 else
     echo "Couldn't [comedi_]config your DAQ card! Laterz..."

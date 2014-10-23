@@ -37,7 +37,7 @@ PRO Plot_Bispectrum,DO_CONTOUR=do_cont,bicoh_scaled=bicoh_scaled,num_seg=num_seg
   xrange=xrange,yrange=yrange,fname=fname,data_dir=data_dir
   
   default_data_dir="/daq/bispectral_analysis/data/idl/"
-  default_file="bispectrum_data_340_350_kHz_waves_at_2.5MHz--n_seg8192--FABRICATED--10MHzrate.idl.data"
+  default_file='500kHz-10kHz_stationarity_proj/bispectrum_data_500_10_kHz_waves--5MHz--n_seg8192--FABRICATED--halfamp_inputwaves--doubleamp_output.idl.data'
   ;default_file="bispectrum_data_340_350_kHz_waves_at_2.5MHz--n_seg" + STRCOMPRESS(string(num_seg),/remove_all) + ".idl.data"
   
   IF NOT KEYWORD_SET(num_seg) THEN BEGIN & $
@@ -158,7 +158,7 @@ PRO Plot_Bispectrum,DO_CONTOUR=do_cont,bicoh_scaled=bicoh_scaled,num_seg=num_seg
 
   ; Load the color table for the display. All zero values will be gray.
   cgLoadCT, 33
-  TVLCT, cgColor('gray', /Triple), 0
+  ;TVLCT, cgColor('gray', /Triple), 0
   ;TVLCT, cgColor('gray', /Triple), 1
   TVLCT, r, g, b, /Get
   palette = [ [r], [g], [b] ]
