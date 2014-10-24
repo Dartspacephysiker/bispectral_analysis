@@ -31,19 +31,19 @@ PRO WAVEFORM_TS_BINARY_TO_IDL_DATA,infile,outfile,tmplt=tmplt,freq=freq
     print,format='("Frequency not provided! Defaulting to ",I-0," kHz")',freq/1000 
   ENDIF
 
-;  IF NOT KEYWORD_SET(tmplt) THEN BEGIN
-;    def_tmplt='/daq/bispectral_analysis/idl/wavform_ts_tmplt_IDL.sav'
-;    
-;    IF (FILE_TEST(def_tmplt)) THEN BEGIN
-;      PRINT, "Using default template: " + def_tmplt
-;      RESTORE,FILENAME=def_tmplt
-;      tmplt=def_tmplt
-;    ENDIF ELSE BEGIN
-;      PRINT, "Couldn't find default template: " + def_tmplt
-;      tmplt = BINARY_TEMPLATE(infile)
-;      SAVE, tmplt, FILENAME=def_tmplt
-;    ENDELSE 
-;  ENDIF
+  IF NOT KEYWORD_SET(tmplt) THEN BEGIN
+    def_tmplt='/daq/bispectral_analysis/idl/wavform_ts_tmplt_IDL.sav'
+    
+    IF (FILE_TEST(def_tmplt)) THEN BEGIN
+      PRINT, "Using default template: " + def_tmplt
+      RESTORE,FILENAME=def_tmplt
+      tmplt=def_tmplt
+    ENDIF ELSE BEGIN
+      PRINT, "Couldn't find default template: " + def_tmplt
+      tmplt = BINARY_TEMPLATE(infile)
+      SAVE, tmplt, FILENAME=def_tmplt
+    ENDELSE 
+  ENDIF
 
   PRINT, "Reading " + infile + "..."
   OPENR, lun, infile, /get_lun

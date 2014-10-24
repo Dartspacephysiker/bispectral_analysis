@@ -20,7 +20,7 @@
 #include <inttypes.h>
 
 #define DEF_INFILE "std input stream"
-#define DEF_OUTFILE "sum_chandata.out"
+#define DEF_OUTFILE "sum_chandata.data"
 #define DEF_OUTDIR "./"
 #define DEF_NCHAN 4
 #define DEF_SAMPSIZE 2

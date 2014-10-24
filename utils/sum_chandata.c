@@ -204,7 +204,8 @@ int parse_options(struct parsed_options *options, int argc, char *argv[]){
       printf("\t-S <#>\t\tSample size in bytes [%i]\n",DEF_SAMPSIZE);
       printf("\t-s <#>\t\tScale factor [1/N_CHAN]\n");      
       printf("\n");
-      printf("\t-P\t\tSplit files into separate channel files, with suffix \"ch0N\"\n");
+      printf("\t-P\t\tSplit files into separate channel files, with suffix \"ch0N\",\n");
+      printf("\t\t\twith output located in the directory containing the input file\n");
       printf("\n");
       printf("\t-v\t\tBe verbose\n");
       printf("\t-d\t\tDiagnostic mode\n");

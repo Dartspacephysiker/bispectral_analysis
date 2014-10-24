@@ -4,11 +4,14 @@
 data_dir="/daq/bispectral_analysis/data/idl/"
 ;fname='out_wavform.data'
 fname='500kHz-10kHz_stationarity_proj/fabdata--500kHz-10kHz--5MHz--multiplied_and_added--halfamp_inputwaves--doubleamp_output.idl.data'
+;fname='bispectral_data--L_500kHz-R_10kHz-0.6V--5MHz--SUM.idl.data'
+;fname='bispectrum_data_340_350_kHz_waves--5MHzrate--n_seg16384--FABRICATED--halfamp_inputwaves--doubleampmixedwave.idl'
 restore,data_dir+fname
 
 ;just do the first thousandth of the whole waveform
 n_ensembles=6L
-delta_t = 1.0/5000000.0
+samp_rate=5000000.0 ;in Hz
+delta_t = 1.0/samp_rate
 
 ;num_seg=256
 ;bicoh_0 = BI_SPECTRUM(wavform_data,dt=delta_t,err=bicoh_err_0,f=bicoh_f_0,Pj=bicoh_pj_0,/img,n_seg=num_seg)
@@ -19,7 +22,7 @@ delta_t = 1.0/5000000.0
 ;num_seg=8192
 ;bicoh_2 = BI_SPECTRUM(wavform_data,dt=delta_t,err=bicoh_err_2,f=bicoh_f_2,Pj=bicoh_pj_2,/img,n_seg=num_seg)
 
-num_seg=8192L
+num_seg=16384L
 n_points=LONG(n_ensembles*num_seg)
 wavform_data=wavform_data[0:n_points-1]
 bicoh_3 = BI_SPECTRUM(wavform_data,dt=delta_t,f=bicoh_f_3,Pj=bicoh_pj_3,/img,n_seg=num_seg)
@@ -27,8 +30,9 @@ bicoh_3 = BI_SPECTRUM(wavform_data,dt=delta_t,f=bicoh_f_3,Pj=bicoh_pj_3,/img,n_s
 ;save,bicoh_3,bicoh_f_3,bicoh_pj_3,FILENAME=data_dir+"bispectrum_data_340_350_kHz_waves--2.5MHz--n_seg16384.idl.data"
 ;or...
 bicoh = bicoh_3 & bicoh_f = bicoh_f_3 & bicoh_pj = bicoh_pj_3 & $
-  save, bicoh,bicoh_f,bicoh_pj,FILENAME=data_dir+"bispectrum_data_500_10_kHz_waves--5MHz--n_seg8192--FABRICATED--halfamp_inputwaves--doubleamp_output.idl.data"
-
+  ;save, bicoh,bicoh_f,bicoh_pj,FILENAME=data_dir+"bispectrum_data_500_10_kHz_waves--0.6V--5MHz--n_seg16384.data"
+  save, bicoh,bicoh_f,bicoh_pj,FILENAME=data_dir+"bispectrum_data_500_10_kHz_waves--5MHz--n_seg16384--FABRICATED--halfamp_inputwaves--doubleamp_output.idl.data"
+  
 ;num_seg=32768
 ;bicoh_4 = BI_SPECTRUM(wavform_data,dt=delta_t,err=bicoh_err_3,f=bicoh_f_3,Pj=bicoh_pj_3,/img,n_seg=num_seg)
 ;
